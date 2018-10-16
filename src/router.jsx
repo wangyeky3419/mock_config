@@ -13,7 +13,8 @@ import routerConfig from './routerConfig';
  */
 function recursiveRouterConfigV4(config = []) {
   const routeMap = [];
-  config.forEach((item) => {
+  config.forEach(function(item){
+     // console.log('item',item)//遍历路由，也就是菜单信息
     const route = {
       path: item.path,
       layout: item.layout,
@@ -45,7 +46,7 @@ function recursiveRouterConfigV4(config = []) {
  */
 function renderRouterConfigV4(container, router, contextPath) {
   const routeChildren = [];
-  const renderRoute = (routeContainer, routeItem, routeContextPath) => {
+  const renderRoute = function(routeContainer, routeItem, routeContextPath){
     let routePath;
     if (!routeItem.path) {
       // eslint-disable-next-line
@@ -63,7 +64,7 @@ function renderRouterConfigV4(container, router, contextPath) {
           key={routePath}
           exact
           path={routePath}
-          render={(props) => {
+          render={function(props) {
             return React.createElement(
               routeItem.layout,
               props,
@@ -79,7 +80,7 @@ function renderRouterConfigV4(container, router, contextPath) {
           key={routePath}
           exact
           path={routePath}
-          render={(props) => {
+          render={function(props){
             return React.createElement(
               routeContainer,
               props,
@@ -101,14 +102,14 @@ function renderRouterConfigV4(container, router, contextPath) {
 
     // 存在子路由，递归当前路径，并添加到路由中
     if (Array.isArray(routeItem.childRoutes)) {
-      routeItem.childRoutes.forEach((r) => {
+      routeItem.childRoutes.forEach(function(r){
         // 递归传递当前 route.component 作为子节点的 container
         renderRoute(routeItem.component, r, routePath);
       });
     }
   };
 
-  router.forEach((r) => {
+  router.forEach(function(r){
     renderRoute(container, r, contextPath);
   });
 

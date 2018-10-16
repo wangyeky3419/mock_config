@@ -28,17 +28,20 @@ export default class VsParamOptionModal extends Component {
         };
         this.field = new Field(this);
     }
-    handleSubmit = () => {
+    handleSubmit(){
+        let self = this;
         this.field.validate((errors, values) => {
             if (errors) {
                 console.log('Errors in form!!!');
                 return;
             }
             console.log('values',values)
-            this.onAddCancel()
+            //调用父组件方法，把值添加进去
+            self.props.setParams(JSON.stringify(values))
+            self.onAddCancel()
         });
     };
-    onAddValue = () => {
+    onAddValue(){
         //添加按钮的点击事件
         let valueType = this.field.getValue('valueType')
         let dataType = this.field.getValue('dataType')
@@ -71,7 +74,7 @@ export default class VsParamOptionModal extends Component {
             fcsType:''
         })
     }
-    onAddCancel = () => {
+    onAddCancel(){
         this.setState({
             visible:false
         })
@@ -116,7 +119,7 @@ export default class VsParamOptionModal extends Component {
         return component
     }
     //创建HTTP
-    getHttpField = () => {
+    getHttpField(){
         const init = this.field.init;
         return(
             <div>
@@ -228,7 +231,7 @@ export default class VsParamOptionModal extends Component {
         )
     }
     //创建MQ
-    getMqField = () => {
+    getMqField(){
         const init = this.field.init;
         return(
             <div>
@@ -338,7 +341,7 @@ export default class VsParamOptionModal extends Component {
         )
     }
     //创建SOCKET短连接
-    getSocketSortField = () => {
+    getSocketSortField(){
         const init = this.field.init;
         return(
             <div>
@@ -480,7 +483,7 @@ export default class VsParamOptionModal extends Component {
         )
     }
     //创建SOCKET长连接
-    getSocketLenField = () => {
+    getSocketLenField(){
         const init = this.field.init;
         return (
             <div>
@@ -738,7 +741,7 @@ export default class VsParamOptionModal extends Component {
                         </FormItem>
                     </Col>
                     <Col span="12">
-                        <Button type="normal" size="small" style={{marginLeft:'130px'}} onClick={() => this.onAddValue()}>添加</Button>
+                        <Button type="normal" size="small" style={{marginLeft:'130px'}} onClick={this.onAddValue.bind(this)}>添加</Button>
                     </Col>
                 </Row>
                 <Table dataSource={this.state.dataSource}>
@@ -839,7 +842,7 @@ export default class VsParamOptionModal extends Component {
         )
     }
     //创建FCSBDSP
-    getFcsbdspField = () => {
+    getFcsbdspField(){
         const init = this.field.init;
         return (
             <div>
@@ -1003,10 +1006,10 @@ export default class VsParamOptionModal extends Component {
                 <Dialog
                     style={{ width: 640 }}
                     visible={this.state.visible}
-                    onOk={this.handleSubmit}
+                    onOk={this.handleSubmit.bind(this)}
                     closable="esc,close"
-                    onCancel={this.onAddCancel}
-                    onClose={this.onAddCancel}
+                    onCancel={this.onAddCancel.bind(this)}
+                    onClose={this.onAddCancel.bind(this)}
                     title="通讯参数"
                 >
                     <Form direction="ver">

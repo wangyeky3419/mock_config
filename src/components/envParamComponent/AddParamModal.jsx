@@ -1,17 +1,9 @@
 import React, { Component } from 'react';
 import { Dialog, Button, Form, Input, Select, DatePicker, Loading, Field } from '@icedesign/base';
-import ParamOptionModal from './ParamOptionModal';
-import VsParamOptionModal from './VsParamOptionModal';
-const { MonthPicker, YearPicker, RangePicker } = DatePicker;
+import ParamOptionModal from './ParamOptionModal';//VC下的参数
+import VsParamOptionModal from './VsParamOptionModal';//VS下的参数
 const FormItem = Form.Item;
-const formItemLayout = {
-    labelCol: {
-        fixedSpan: 6,
-    },
-    wrapperCol: {
-        span: 14,
-    },
-};
+
 export default class AddParamModal extends Component {
     static displayName = 'EnvParamModal';
   
@@ -20,31 +12,33 @@ export default class AddParamModal extends Component {
         this.state = {
             visible: false,
             type: '',
-            receiveType:''
+            receiveType:'',
+            cmParas:''
         };
         this.field = new Field(this);
     }
-    handleSubmit = () => {
-        this.field.validate((errors, values) => {
+    handleSubmit(){
+        let self = this;
+        this.field.validate(function(errors, values){
             if (errors) {
                 console.log('Errors in form!!!');
                 return;
             }
-            this.onAddCancel()
+            self.onAddCancel()
         });
     };
-    onAddOpen = (receiveType) => {
+    onAddOpen(receiveType){
         this.setState({
             visible:true,
             receiveType:receiveType
         })
     }
-    onAddCancel = () => {
+    onAddCancel(){
         this.setState({
             visible:false
         })
     }
-    handleChange = (value,option) =>{
+    handleChange(value,option){
         console.log('value000',value)
         if(value != null){
             let receiveType = this.state.receiveType;
@@ -56,6 +50,11 @@ export default class AddParamModal extends Component {
                 this.vsParamOptionElement.onAddOpen(value)
             }
         }
+    }
+    setParams(values){
+        this.setState({
+            cmParas:values
+        })
     }
     render() {
         const init = this.field.init;
@@ -74,10 +73,10 @@ export default class AddParamModal extends Component {
                 <Dialog
                     style={{ width: 640 }}
                     visible={this.state.visible}
-                    onOk={this.handleSubmit}
+                    onOk={this.handleSubmit.bind(this)}
                     closable="esc,close"
-                    onCancel={this.onAddCancel}
-                    onClose={this.onAddCancel}
+                    onCancel={this.onAddCancel.bind(this)}
+                    onClose={this.onAddCancel.bind(this)}
                     title="新增"
                 >
                     <Form direction="ver" field={this.field}>
@@ -102,13 +101,14 @@ export default class AddParamModal extends Component {
                         <FormItem label="通讯参数：" {...formItemLayout}>
                             <Input
                             {...init('cmParas')}
+                            value={this.state.cmParas}
                             disabled
                             />
                         </FormItem>
                     </Form>
                 </Dialog>
-                <ParamOptionModal ref={el => this.paramOptionElement = el} type={this.state.type}/>
-                <VsParamOptionModal ref={el => this.vsParamOptionElement = el} type={this.state.type}/>
+                {/* <ParamOptionModal ref={ el => this.paramOptionElement=el} type={this.state.type} setParams={this.setParams.bind(this)}/>
+                <VsParamOptionModal ref={el => this.vsParamOptionElement = el} type={this.state.type} setParams={this.setParams.bind(this)}/> */}
             </div>
         );
     }

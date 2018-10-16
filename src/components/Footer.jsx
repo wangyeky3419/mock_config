@@ -18,9 +18,10 @@ export default class Footer extends PureComponent {
             <div style={{ filter: 'grayscale(100%)', opacity: 0.3 }}>
                 <Logo />
             </div>
-            <div className="copyright">
+            <div className="copyright" style={{color:'#444'}}>
                 © 2018 Theme designed by{' '}
                 <a
+                    style={{color:'#444'}}
                     href="https://github.com/alibaba/ice"
                     target="_blank"
                     className="copyright-link"

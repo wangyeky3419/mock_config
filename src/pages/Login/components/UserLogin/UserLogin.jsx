@@ -9,12 +9,12 @@ import {
 } from '@icedesign/form-binder';
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
-
+import axios from 'axios';;
 const { Row, Col } = Grid;
 
 // 寻找背景图片可以从 https://unsplash.com/ 寻找
 const backgroundImage =
-  'https://img.alicdn.com/tfs/TB1zsNhXTtYBeNjy1XdXXXXyVXa-2252-1500.png';
+  '../../../public/images/login.png';
 
 @withRouter
 export default class UserLogin extends Component {
@@ -28,30 +28,40 @@ export default class UserLogin extends Component {
     super(props);
     this.state = {
       value: {
-        account: undefined,
+        userName: undefined,
         password: undefined,
         checkbox: false,
       },
     };
   }
 
-  formChange = (value) => {
+  formChange(value){
     this.setState({
       value,
     });
   };
 
-  handleSubmit = (e) => {
+  handleSubmit(e){
     e.preventDefault();
-    this.refs.form.validateAll((errors, values) => {
+    let self = this;
+    this.refs.form.validateAll(function(errors, values){
       if (errors) {
         console.log('errors', errors);
         return;
       }
-      console.log('values:', values);
-      console.log(this.props);
-      this.props.history.push('/');
+        axios({
+            method:'post',
+            url:'/mock/login',
+            // withCredentials:true,
+            params:values
+        })
+        .then(function(response){
+            //登录成功
+            console.log('response',response)
+            self.props.history.push('/cate/executiveMachine');
+        })
       // HashRouter.push('/');
+      self.props.history.push('/cate/executiveMachine');
     });
   };
 
@@ -66,13 +76,13 @@ export default class UserLogin extends Component {
         />
         <div style={styles.contentWrapper} className="content-wrapper">
           <h2 style={styles.slogan} className="slogan">
-            欢迎使用 <br /> ICE 内容管理系统
+            欢迎使用 <br /> 接口仿真测试管理系统
           </h2>
           <div style={styles.formContainer}>
             <h4 style={styles.formTitle}>登录</h4>
             <IceFormBinderWrapper
               value={this.state.value}
-              onChange={this.formChange}
+              onChange={this.formChange.bind(this)}
               ref="form"
             >
               <div style={styles.formItems}>
@@ -83,12 +93,12 @@ export default class UserLogin extends Component {
                       size="small"
                       style={styles.inputIcon}
                     />
-                    <IceFormBinder name="account" required message="必填">
+                    <IceFormBinder name="userName" required message="必填">
                       <Input maxLength={20} placeholder="会员名/邮箱/手机号" />
                     </IceFormBinder>
                   </Col>
                   <Col>
-                    <IceFormError name="account" />
+                    <IceFormError name="userName" />
                   </Col>
                 </Row>
 
@@ -119,7 +129,7 @@ export default class UserLogin extends Component {
                 <Row style={styles.formItem}>
                   <Button
                     type="primary"
-                    onClick={this.handleSubmit}
+                    onClick={this.handleSubmit.bind(this)}
                     style={styles.submitBtn}
                   >
                     登 录

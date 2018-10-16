@@ -27,15 +27,15 @@ export default class Header extends PureComponent {
                 {/* Header 菜单项 begin */}
                 {headerMenuConfig && headerMenuConfig.length > 0 ? (
                     <Menu mode="horizontal" selectedKeys={[]}>
-                    {headerMenuConfig.map((nav, idx) => {
+                    {headerMenuConfig.map(function(nav, idx){
                         const linkProps = {};
                         if (nav.newWindow) {
-                        linkProps.href = nav.to;
-                        linkProps.target = '_blank';
+                            linkProps.href = nav.to;
+                            linkProps.target = '_blank';
                         } else if (nav.external) {
-                        linkProps.href = nav.to;
+                            linkProps.href = nav.to;
                         } else {
-                        linkProps.to = nav.to;
+                            linkProps.to = nav.to;
                         }
                         return (
                         <Menu.Item key={idx}>
@@ -81,7 +81,7 @@ export default class Header extends PureComponent {
                         />
                         <div className="user-profile">
                         <span className="user-name" style={{ fontSize: '13px' }}>
-                            淘小宝
+                            王野
                         </span>
                         <br />
                         <span
@@ -103,15 +103,15 @@ export default class Header extends PureComponent {
                 >
                     <ul>
                     <li className="user-profile-menu-item">
-                        <Link to="/">
+                        <Link to="/home">
                         <FoundationSymbol type="person" size="small" />我的主页
                         </Link>
                     </li>
-                    <li className="user-profile-menu-item">
+                    {/* <li className="user-profile-menu-item">
                         <Link to="/">
                         <FoundationSymbol type="repair" size="small" />设置
                         </Link>
-                    </li>
+                    </li> */}
                     <li className="user-profile-menu-item">
                         <Link to="/">
                         <FoundationSymbol type="compass" size="small" />退出

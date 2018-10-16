@@ -19,7 +19,7 @@ export default class CustomBreadcrumb extends Component {
         return (
             <IceContainer>
                 <Breadcrumb style={{ margin: 0 }}>
-                    {dataSource.map((item, index) => {
+                    {dataSource.map(function(item, index){
                         return (
                             <Breadcrumb.Item link={item.link} key={index}>
                                 {item.text}

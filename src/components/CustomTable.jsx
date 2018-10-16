@@ -19,9 +19,9 @@ export default class CustomTable extends Component {
         this.state = {};
     }
     
-    renderColumns = () => {
+    renderColumns(){
         const { columns } = this.props;
-        return columns.map((item) => {
+        return columns.map(function(item){
             if (typeof item.render === 'function') {
                 return (
                     <Table.Column

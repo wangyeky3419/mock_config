@@ -29,17 +29,20 @@ export default class ParamOptionModal extends Component {
         };
         this.field = new Field(this);
     }
-    handleSubmit = () => {
-        this.field.validate((errors, values) => {
+    handleSubmit(){
+        let self = this
+        this.field.validate(function(errors, values){
             if (errors) {
                 console.log('Errors in form!!!');
                 return;
             }
             console.log('values',values)
-            this.onAddCancel()
+            //调用父组件方法，把值添加进去
+            self.props.setParams(JSON.stringify(values))
+            self.onAddCancel()
         });
     };
-    onAddValue = () => {
+    onAddValue(){
         //添加按钮的点击事件
         let valueType = this.field.getValue('valueType')
         let dataType = this.field.getValue('dataType')
@@ -62,7 +65,7 @@ export default class ParamOptionModal extends Component {
             dataSource:temp
         })
     }
-    onAddOpen = (type) => {
+    onAddOpen(type){
         this.field.remove()
         this.setState({
             visible:true,
@@ -72,30 +75,30 @@ export default class ParamOptionModal extends Component {
             fcsType:''
         })
     }
-    onAddCancel = () => {
+    onAddCancel(){
         this.setState({
             visible:false
         })
     }
     //SOCKET短连接解码类型改变
-    handleSortChange = (value,option) => {
+    handleSortChange(value,option){
         this.setState({
             sortType:value
         })
     }
     //SOCKET长连接解码类型改变
-    handleLenChange = (value,option) => {
+    handleLenChange(value,option){
         this.setState({
             lenType:value
         })
     }
     //FCSBDSP解码类型改变
-    handleFcsChange = (value,option) => {
+    handleFcsChange(value,option){
         this.setState({
             fcsType:value
         })
     }
-    createFormItem = (type) => {
+    createFormItem(type){
         let component = null;
         switch(type){
             case '0':
@@ -120,7 +123,7 @@ export default class ParamOptionModal extends Component {
         return component
     }
     //创建HTTP
-    getHttpField = () => {
+    getHttpField(){
         const init = this.field.init;
         return(
             <div>
@@ -177,7 +180,7 @@ export default class ParamOptionModal extends Component {
         )
     }
     //创建MQ
-    getMqField = () => {
+    getMqField(){
         const init = this.field.init;
         return(
             <div>
@@ -287,7 +290,7 @@ export default class ParamOptionModal extends Component {
         )
     }
     //创建SOCKET短连接
-    getSocketSortField = () => {
+    getSocketSortField(){
         const init = this.field.init;
         return(
             <div>
@@ -410,7 +413,7 @@ export default class ParamOptionModal extends Component {
         )
     }
     //创建SOCKET长连接
-    getSocketLenField = () => {
+    getSocketLenField(){
         const init = this.field.init;
         return (
             <div>
@@ -668,7 +671,7 @@ export default class ParamOptionModal extends Component {
                         </FormItem>
                     </Col>
                     <Col span="12">
-                        <Button type="normal" size="small" style={{marginLeft:'130px'}} onClick={() => this.onAddValue()}>添加</Button>
+                        <Button type="normal" size="small" style={{marginLeft:'130px'}} onClick={this.onAddValue.bind(this)}>添加</Button>
                     </Col>
                 </Row>
                 <Table dataSource={this.state.dataSource}>
@@ -769,7 +772,7 @@ export default class ParamOptionModal extends Component {
         )
     }
     //创建UCP
-    getUcpField = () => {
+    getUcpField(){
         const init = this.field.init;
         return (
             <div>
@@ -801,7 +804,7 @@ export default class ParamOptionModal extends Component {
         )
     }
     //创建FCSBDSP
-    getFcsbdspField = () => {
+    getFcsbdspField(){
         const init = this.field.init;
         return (
             <div>
@@ -965,10 +968,10 @@ export default class ParamOptionModal extends Component {
                 <Dialog
                     style={{ width: 640 }}
                     visible={this.state.visible}
-                    onOk={this.handleSubmit}
+                    onOk={this.handleSubmit.bind(this)}
                     closable="esc,close"
-                    onCancel={this.onAddCancel}
-                    onClose={this.onAddCancel}
+                    onCancel={this.onAddCancel.bind(this)}
+                    onClose={this.onAddCancel.bind(this)}
                     title="通讯参数"
                 >
                     <Form direction="ver">

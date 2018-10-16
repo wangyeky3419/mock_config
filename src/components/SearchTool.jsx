@@ -1,59 +1,58 @@
 import React, { Component } from 'react';
-import { Search, Button, Select, Input } from "@icedesign/base";
-
+import { Search, Button, Select, Input, Feedback } from "@icedesign/base";
+const Toast = Feedback.toast;
 export default class SearchTool extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             searchKey:'',
             searchValue:'',
-            searchType:<Input style={{float:'right',width:'200px',borderRadius:'0'}}/>,
+            options:[]
         }
     }
-
-    onSearch = (value) => {
-        console.log('搜索');
+    componentDidMount(){
+       
+    }
+    onSearch(value){
         let searchKey = this.state.searchKey;
-        let searchValue = this.state.searchValue;
-        let searchField = {};
-        if(searchKey&&searchValue){
-            searchField[searchKey]=searchValue;
+        let searchValue = this.state.searchValue.trim();
+        // let searchField = {};
+        if(searchKey){
+            // searchField[searchKey]=searchValue;
             //调用父组件方法进行搜索
-            this.props.search(searchField)
+            this.props.search(searchKey,searchValue);
         }else{
-            console.log('请输入');
+            Toast.prompt('请选择搜索字段')
         }
         
     }
     //选择框改变
-    onChange = (value,options) => {
-        console.log("value2",value)
-        let searchType = this.createSearch(options)
+    onChange(value,options){
         this.setState({
-            searchType:searchType,
-            searchKey:value
+            options:options,
+            searchKey:value,
+            searchValue:'',
         })
     }
     //搜索值改变
-    onValueChange = (value,options) => {
-        this.setState({
-            searchValue:value
-        })
+    onValueChange(value,options,isClear){
+        // if(isClear){
+        //     console.log('clear')
+        //     this.setState({
+        //         searchValue:''
+        //     })
+        // }else{
+            this.setState({
+                searchValue:value
+            })
+        // }
     }
-    createSearch = (options) => {
-        return(
-            options.option?
-                <Select style={{float:'right',width:'200px',borderRadius:'0'}} dataSource={options.option} onChange={this.onValueChange.bind(this)} hasClear={true}/>
-            :
-            <Input style={{float:'right',width:'200px',borderRadius:'0'}} onChange={this.onValueChange.bind(this)}/>
-        )
-    }
-    onFilterChange = (value, obj) => {
+    onFilterChange(value, obj){
         console.log(`filter is: ${value}`);
         console.log("fullData: ", obj);
     }
-   
     render() {
+        let options = this.state.options
         return (
             <React.Fragment>
                 <Button
@@ -61,19 +60,23 @@ export default class SearchTool extends React.Component {
                     component="a"
                     size="small"
                     style={styles.buttonType}
-                    onClick={this.onSearch}>
+                    onClick={this.onSearch.bind(this)}>
                     <span>搜索</span>
                 </Button>
-                {this.state.searchType}
-                <Select style={styles.selectType} dataSource={this.props.filter} onChange={this.onChange.bind(this)} hasClear={true}/>
+                    {options.option?
+                    <Select style={{float:'right',width:'140px',borderRadius:'0'}} size="small" value={this.state.searchValue} dataSource={options.option} onChange={this.onValueChange.bind(this)} hasClear={true}/>
+                    :
+                    <Input style={{float:'right',width:'140px',borderRadius:'0'}} size="small" value={this.state.searchValue} onChange={this.onValueChange.bind(this)} hasClear={true}/>
+                    }
+                <Select style={styles.selectType} size="small" dataSource={this.props.filter} onChange={this.onChange.bind(this)} hasClear={true}/>
             </React.Fragment>
         );
     }
 }
 const styles = {
     selectType: {
+        width:'120px',
         float:'right',
-        width:'150px',
         borderTopRightRadius:'0',
         borderBottomRightRadius:'0',
         borderTopLeftRadius:'50px',
@@ -84,7 +87,5 @@ const styles = {
         float:'right',
         borderTopLeftRadius:'0',
         borderBottomLeftRadius:'0',
-        height:'28px',width:'80px',
-        lineHeight:'28px'
     }
 };

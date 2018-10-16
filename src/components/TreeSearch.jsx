@@ -1,54 +1,23 @@
-import { Tree, Search, Loading } from "@icedesign/base";
+import { Tree, Search, Loading, Feedback } from "@icedesign/base";
 import React, { Component } from 'react';
-
+const Toast = Feedback.toast;
 const { Node: TreeNode } = Tree;
-
-function generateTreeNodes(treeNode) {
-    const arr = [];
-    const key = treeNode.props.eventKey;
-    for (let i = 0; i < 3; i++) {
-      arr.push({ name: `pNode ${key}-${i}`, key: `${key}-${i}`,type:`100+${i}` });
-    }
-    return arr;
-}
-function setLeaf(treeData, curKey, level) {
-    const loopLeaf = (data, lev) => {
-        const l = lev - 1;
-        data.forEach(item => {
-            if (
-                item.key.length > curKey.length
-                    ? item.key.indexOf(curKey) !== 0
-                    : curKey.indexOf(item.key) !== 0
-            ) {
-                return;
-            }
-            if (item.children) {
-                loopLeaf(item.children, l);
-            } else if (l < 1) {
-                item.isLeaf = true;
-            }
-        });
-    };
-    loopLeaf(treeData, level + 1);
-}
-function getNewTreeData(treeData, curKey, child, level) {
+import * as ajax from '../utils/ajax.js';
+var ids = [];
+function getNewTreeData(treeData, curId, child) {
     const loop = data => {
-        if (level < 1 || curKey.length - 3 > level * 2) {
-            return;
-        }
-  
         data.forEach(item => {
-            if (curKey.indexOf(item.key) === 0) {
-                if (item.children) {
+            if(item.id==curId){
+                item.children = child;
+            }
+            else{
+                if(item.children){
                     loop(item.children);
-                } else {
-                    item.children = child;
                 }
             }
         });
     };
     loop(treeData);
-    setLeaf(treeData, curKey, level);
 }
 export default class TreeSearch extends Component {
     constructor(props) {
@@ -65,70 +34,72 @@ export default class TreeSearch extends Component {
         this.handleExpand = this.handleExpand.bind(this);
     }
     componentDidMount() {
-        setTimeout(() => {
-          this.setState({
-            treeData: [
-                { name: "pNode 0-0", key: "0-0",type:100},
-                { name: "pNode 0-1", key: "0-1",type:200},
-                { name: "pNode 0-2", key: "0-2",type:300, isLeaf: true }
-            ],
-            visible:false
-          });
-        }, 2000);
-      }
-    onSelect = (selectedKeys,extra) => {
+    }
+    onSelect(selectedKeys,extra){
         this.props.onSelect(selectedKeys,extra)
     }
-    onLoadData = (treeNode) => {
-        return new Promise(resolve => {
-            setTimeout(() => {
-            const treeData = [...this.state.treeData];
-            //当前加载的节点属性值
-            console.log('treeNode.props',treeNode.props)
-            getNewTreeData(treeData,treeNode.props.eventKey,generateTreeNodes(treeNode),2);
-            this.setState({ treeData });
-                resolve();
-            }, 500);
-        });
-    }
-    handleSearch = (result) => {
-        const value = result.key;
-        const matchedKeys = [];
-        let treeData = this.state.treeData
-        console.log('treeData',treeData)
-        const loop = data =>
-            treeData.forEach(item => {
-                console.log('item.name',item.name)
-                if (item.name.indexOf(value.trim()) > -1) {
-                    matchedKeys.push(item.key);
-                }
-                if (item.children && item.children.length) {
-                    loop(item.children);
-                }
+    onLoadData(treeNode){
+        let self = this;
+        //每次加载节点，先进行判断节点是否已经加载，如果已存在，不发送请求
+        for(var i = 0; i < ids.length; i++){
+            if(ids[i]==treeNode.props.id){
+                return new Promise(function(resolve){resolve();});
+            }
+        }
+        return new Promise(function(resolve){
+            setTimeout(()=>{
+            const treeData = [...self.state.treeData];//当前所有存在的节点，包含父子节点
+            var params = {
+                id:treeNode.props.id,
+                type:treeNode.props.type
+            }
+            ajax.getTree('/mock-server/env/tree/get',params)
+            .then(function(response){
+                console.log('success')
+                ids.push(treeNode.props.id)//已经加载的id进行保存
+                var newNode = JSON.parse(response.data.content);
+                getNewTreeData(treeData,treeNode.props.id,newNode);
+                self.setState(function(prevState, props) {
+                    return {
+                        treeData
+                    };
+                });
+            }).catch(function(error){
+                console.log('error')
+                Toast.error('数据加载失败')
             });
-        loop(treeData);
-        this.setState({
-            value: result.key,
-            expandedKeys: matchedKeys,
-            autoExpandParent: true
+                resolve();
+            }, 400);
         });
-        this.matchedKeys = matchedKeys;
     }
-
-    handleExpand = (keys) => {
+    onCancel(){
+        this.setState({
+            visible:false
+        })
+    }
+     //把父组件传来的树节点给树赋值
+     setTreeData(treeData){
+        this.setState({
+            treeData:treeData,
+            visible:false
+        })
+    }
+    handleSearch(result){
+    }
+    handleExpand(keys){
+        console.log('keys',keys)
         this.setState({
             expandedKeys: keys,
             autoExpandParent: false
         });
     }
-    
     render() {
         //定义loop方法，传入data参数，返回树节点
-        const loop = data =>
-            data.map(item => {
+        function loop(data){
+            return  data.map(function(item){
                 if (item.children) {
                     return (
-                        <TreeNode label={item.name} key={item.key}  type={item.type}>
+                        <TreeNode label={item.name} key={item.id}  type={item.type} id={item.id}>
                             {loop(item.children)}
                         </TreeNode>
                     );
@@ -136,40 +107,47 @@ export default class TreeSearch extends Component {
                 return (
                     <TreeNode
                         label={item.name}
-                        key={item.key}
+                        key={item.id}
                         isLeaf={item.isLeaf}
                         type={item.type}
+                        id={item.id}
                     />
                 );
         });
+        }
+           
         //返回的treeNodes就是要渲染到页面上的树节点数据
         const treeNodes = loop(this.state.treeData);
 
         const { value, expandedKeys, autoExpandParent } = this.state;
         //待筛选的节点
-        const filterTreeNode = node =>
-        value && this.matchedKeys.indexOf(node.props.eventKey) > -1;
+        function filterTreeNode(node){
+            return value && this.matchedKeys.indexOf(node.props.eventKey) > -1;
+        }
         return (
             <Loading visible={this.state.visible} style={{}} shape="fusion-reactor">
                 <Search
                     type="normal"
                     size="small"
                     searchText=""
-                    autoWidth={true}
+                    // autoWidth={true}
                     value={value}
+                    inputWidth={50}
+
                     onSearch={this.handleSearch}
                 />
-                    <Tree
-                        onSelect={this.onSelect.bind(this)}
-                        loadData={this.onLoadData.bind(this)}
-                        showLine={true}
-                        expandedKeys={expandedKeys}
-                        autoExpandParent={autoExpandParent}
-                        filterTreeNode={filterTreeNode}
-                        onExpand={this.handleExpand}
-                    >
-                        {treeNodes}
-                    </Tree>
+                <Tree
+                    onSelect={this.onSelect.bind(this)}
+                    loadData={this.onLoadData.bind(this)}
+                    showLine={true}
+                    expandedKeys={expandedKeys}
+                    autoExpandParent={autoExpandParent}
+                    filterTreeNode={filterTreeNode.bind(this)}
+                    onExpand={this.handleExpand.bind(this)}
+                    editable={true}
+                >
+                    {treeNodes}
+                </Tree>
             </Loading>
         );
     }
